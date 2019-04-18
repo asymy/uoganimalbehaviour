@@ -82,9 +82,9 @@ class Player(QMainWindow):
         self.videocontolbox.addStretch(1)
 
         self.speedslider = QSlider(Qt.Horizontal, self)
-        self.speedslider.setMaximum(3)
-        self.speedslider.setMinimum(-3)
-        self.speedslider.setValue(self.mediaplayer.get_rate())
+        self.speedslider.setMaximum(200)
+        self.speedslider.setMinimum(50)
+        self.speedslider.setValue(self.mediaplayer.get_rate()*100)
         self.speedslider.setToolTip("Speed")
         self.videocontolbox.addWidget(self.speedslider)
         self.speedslider.valueChanged.connect(self.setSpeed)
@@ -187,7 +187,7 @@ class Player(QMainWindow):
     def setSpeed(self, Speed):
         """Set the playback speed
         """
-        self.mediaplayer.set_rate(Speed)
+        self.mediaplayer.set_rate((Speed/100))
 
     def setPosition(self, position):
         """Set the position
