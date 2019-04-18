@@ -44,6 +44,9 @@ class Player(QMainWindow):
         self.isLicking = False
         self.isBiting = False
 
+        self.startLickTime = []
+        self.stopLickTime = []
+
     def createUI(self):
         """Set up the user interface, signals & slots
         """
@@ -199,12 +202,15 @@ class Player(QMainWindow):
     def LickStartStop(self):
         """Toggle state of licking behaviour
         """
-        if self.isLicking == False:
-            self.isLicking = True
-        else:
-            self.isLicking = False
-
-        print(self.mediaplayer.get_position()*1000)
+        if self.mediaplayer.is_playing():
+            if self.isLicking == False:
+                self.isLicking = True
+                self.licktoggle.setText("Stop Lick")
+                self.startLickTime.append(self.mediaplayer.get_position()*1000)
+            else:
+                self.isLicking = False
+                self.stopLickTime.append(self.mediaplayer.get_position()*1000)
+                self.licktoggle.setText("Start Lick")
 
 
     def updateUI(self):
