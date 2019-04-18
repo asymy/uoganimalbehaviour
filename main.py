@@ -1,30 +1,27 @@
-#! /usr/bin/python
-
+# ! /usr/bin/python
 #
-# Qt example for VLC Python bindings
-# Copyright (C) 2009-2010 the VideoLAN team
+#
+# Software for analysing the behaviour of animals, specifically 
+# licking and biting from pre-recorded videos.
+#
+# Alison Symon for the spinal cord group at the University of Glasgow
+# 2019
+#
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
-#
+
 
 import sys
 import os.path
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtWidgets import QMainWindow, QWidget, QFrame, QSlider, QHBoxLayout, QPushButton, \
-    QVBoxLayout, QAction, QFileDialog, QApplication
+    QVBoxLayout, QAction, QFileDialog, QApplication, QLineEdit, QLabel
 import vlc
 
 class Player(QMainWindow):
@@ -32,7 +29,7 @@ class Player(QMainWindow):
     """
     def __init__(self, master=None):
         QMainWindow.__init__(self, master)
-        self.setWindowTitle("Media Player")
+        self.setWindowTitle("Spinal Group Animal Behaviour Analyser")
 
         # creating a basic vlc instance
         self.instance = vlc.Instance()
@@ -46,6 +43,8 @@ class Player(QMainWindow):
 
         self.startLickTime = []
         self.stopLickTime = []
+        self.startBiteTime = []
+        self.stopBiteTime = []
 
     def createUI(self):
         """Set up the user interface, signals & slots
@@ -102,12 +101,33 @@ class Player(QMainWindow):
         self.licktoggle.clicked.connect(self.LickStartStop)
         self.LickBehaviour.addStretch(1)
 
+        self.InfoSave = QHBoxLayout()
+        self.InfoSave.addStretch(20)
+        self.IDLabel = QLabel(self)
+        self.IDLabel.setText('Animal ID: ')
+        self.InfoSave.addWidget(self.IDLabel)
+        self.animalID = QLineEdit(self)
+        self.animalID.setText("")
+        self.InfoSave.addWidget(self.animalID)
+        self.InfoSave.addStretch(1)
+
+        self.DateLabel = QLabel(self)
+        self.DateLabel.setText('Date: ')
+        self.InfoSave.addWidget(self.DateLabel)
+        self.Date = QLineEdit(self)
+        self.Date.setText("")
+        self.InfoSave.addWidget(self.Date)
+
+        self.InfoSave.addStretch(1)
+        self.savebutton = QPushButton("Save")
+        self.InfoSave.addWidget(self.savebutton)
+
         self.vboxlayout = QVBoxLayout()
         self.vboxlayout.addWidget(self.videoframe)
         self.vboxlayout.addWidget(self.positionslider)
         self.vboxlayout.addLayout(self.videocontolbox)
         self.vboxlayout.addLayout(self.LickBehaviour)
-
+        self.vboxlayout.addLayout(self.InfoSave)
         self.widget.setLayout(self.vboxlayout)
 
         open = QAction("&Open", self)
@@ -149,8 +169,7 @@ class Player(QMainWindow):
     def OpenFile(self, filename=None):
         """Open a media file in a MediaPlayer
         """
-        if filename is None:
-            filename = QFileDialog.getOpenFileName(self, "Open File", os.path.expanduser('~'))[0]
+        filename = QFileDialog.getOpenFileName(self, "Open File", os.path.expanduser('~'))[0]
         if not filename:
             return
 
@@ -164,7 +183,7 @@ class Player(QMainWindow):
         # parse the metadata of the file
         self.media.parse()
         # set the title of the track as window title
-        self.setWindowTitle(self.media.get_meta(0))
+        # self.setWindowTitle(self.media.get_meta(0))
 
         # the media player has to be 'connected' to the QFrame
         # (otherwise a video would be displayed in it's own window)
@@ -178,6 +197,7 @@ class Player(QMainWindow):
         elif sys.platform == "darwin": # for MacOS
             self.mediaplayer.set_nsobject(int(self.videoframe.winId()))
         self.PlayPause()
+
 
     def setVolume(self, Volume):
         """Set the volume
@@ -211,7 +231,6 @@ class Player(QMainWindow):
                 self.isLicking = False
                 self.stopLickTime.append(self.mediaplayer.get_position()*1000)
                 self.licktoggle.setText("Start Lick")
-
 
     def updateUI(self):
         """updates the user interface"""
