@@ -1,5 +1,24 @@
 #! /usr/bin/python
 
+#
+# Qt example for VLC Python bindings
+# Copyright (C) 2009-2010 the VideoLAN team
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
+#
+
 import sys
 import os.path
 from PyQt5.QtCore import Qt, QTimer
@@ -22,6 +41,8 @@ class Player(QMainWindow):
 
         self.createUI()
         self.isPaused = False
+        self.isLicking = False
+        self.isBiting = False
 
     def createUI(self):
         """Set up the user interface, signals & slots
@@ -46,27 +67,43 @@ class Player(QMainWindow):
         self.positionslider.setMaximum(1000)
         self.positionslider.sliderMoved.connect(self.setPosition)
 
-        self.hbuttonbox = QHBoxLayout()
+        self.videocontolbox = QHBoxLayout()
         self.playbutton = QPushButton("Play")
-        self.hbuttonbox.addWidget(self.playbutton)
+        self.videocontolbox.addWidget(self.playbutton)
         self.playbutton.clicked.connect(self.PlayPause)
 
         self.stopbutton = QPushButton("Stop")
-        self.hbuttonbox.addWidget(self.stopbutton)
+        self.videocontolbox.addWidget(self.stopbutton)
         self.stopbutton.clicked.connect(self.Stop)
 
-        self.hbuttonbox.addStretch(1)
+        self.videocontolbox.addStretch(1)
+
+        self.speedslider = QSlider(Qt.Horizontal, self)
+        self.speedslider.setMaximum(3)
+        self.speedslider.setMinimum(-3)
+        self.speedslider.setValue(self.mediaplayer.get_rate())
+        self.speedslider.setToolTip("Speed")
+        self.videocontolbox.addWidget(self.speedslider)
+        self.speedslider.valueChanged.connect(self.setSpeed)
+
         self.volumeslider = QSlider(Qt.Horizontal, self)
         self.volumeslider.setMaximum(100)
         self.volumeslider.setValue(self.mediaplayer.audio_get_volume())
         self.volumeslider.setToolTip("Volume")
-        self.hbuttonbox.addWidget(self.volumeslider)
+        self.videocontolbox.addWidget(self.volumeslider)
         self.volumeslider.valueChanged.connect(self.setVolume)
+
+        self.LickBehaviour = QHBoxLayout()
+        self.licktoggle = QPushButton("Start Lick")
+        self.LickBehaviour.addWidget(self.licktoggle)
+        self.licktoggle.clicked.connect(self.LickStartStop)
+        self.LickBehaviour.addStretch(1)
 
         self.vboxlayout = QVBoxLayout()
         self.vboxlayout.addWidget(self.videoframe)
         self.vboxlayout.addWidget(self.positionslider)
-        self.vboxlayout.addLayout(self.hbuttonbox)
+        self.vboxlayout.addLayout(self.videocontolbox)
+        self.vboxlayout.addLayout(self.LickBehaviour)
 
         self.widget.setLayout(self.vboxlayout)
 
@@ -144,6 +181,11 @@ class Player(QMainWindow):
         """
         self.mediaplayer.audio_set_volume(Volume)
 
+    def setSpeed(self, Speed):
+        """Set the playback speed
+        """
+        self.mediaplayer.set_rate(Speed)
+
     def setPosition(self, position):
         """Set the position
         """
@@ -153,6 +195,17 @@ class Player(QMainWindow):
         # uses integer variables, so you need a factor; the higher the
         # factor, the more precise are the results
         # (1000 should be enough)
+
+    def LickStartStop(self):
+        """Toggle state of licking behaviour
+        """
+        if self.isLicking == False:
+            self.isLicking = True
+        else:
+            self.isLicking = False
+
+        print(self.mediaplayer.get_position()*1000)
+
 
     def updateUI(self):
         """updates the user interface"""
@@ -173,7 +226,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     player = Player()
     player.show()
-    player.resize(640, 480)
+    player.resize(1280, 960)
     if sys.argv[1:]:
         player.OpenFile(sys.argv[1])
     sys.exit(app.exec_())
