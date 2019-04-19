@@ -13,5 +13,6 @@
   - [x] format
   - [ ] summary sheet
   - [x] indication that it has been saved/option on place to save
+- [ ] perhaps .ini file or similar which will allow users to customise their file saving/opening defualt locations
 
 ## Known Issues
