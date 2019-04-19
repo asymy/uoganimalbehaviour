@@ -12,7 +12,7 @@ Designed for use in the spinal cord group at the University of Glasgow.
 - openpyxl
 - vlc (32bit)
 
-# Instructions for installation
+## Instructions for installation
 
 - Download [python3](https://www.python.org/)
 - Download 32-bit version of [VLC](https://www.videolan.org/vlc/index.en-GB.html)
