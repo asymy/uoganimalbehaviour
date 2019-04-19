@@ -17,9 +17,11 @@ Designed for use in the spinal cord group at the University of Glasgow.
 - Download [python3](https://www.python.org/)
 - Download 32-bit version of [VLC](https://www.videolan.org/vlc/index.en-GB.html)
 - open a terminal window
-- copy this line:
+- copy these lines into terminal window and wait for them to install:
 
-`pip install python-vlc, PyQt5, openpyxl`
+`pip install python-vlc`
+`pip install openpyxl`
+`pip install PyQt5`
 
 - download this project
 - run main.py
