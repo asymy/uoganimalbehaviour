@@ -220,6 +220,25 @@ class Player(QMainWindow):
         self.mediaplayer.audio_set_volume(Volume)
         self.volumeslider.setValue(self.mediaplayer.audio_get_volume())
 
+    def increaseSpeed(self):
+        "increase the speed"
+        current = self.mediaplayer.get_rate()*100
+        new = current + 25
+        if new > 200:
+            new = 200
+        self.setSpeed(new)
+
+    def decreaseSpeed(self):
+        "decrease the speed"
+        current = self.mediaplayer.get_rate()*100
+        new = current - 25
+        if new < 50:
+            new = 50
+        self.setSpeed(new)
+
+    def resetSpeed(self):
+        self.setSpeed(100)
+
 
     def setSpeed(self, Speed):
         """Set the playback speed
