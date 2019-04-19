@@ -10,7 +10,7 @@
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation; either version 3git of the License, or
 # (at your option) any later version.
 #
 #
@@ -27,8 +27,7 @@ from PyQt5.QtWidgets import QMainWindow, QWidget, QFrame, QSlider, QHBoxLayout, 
 import vlc
 
 class Player(QMainWindow):
-    """A simple Media Player using VLC and Qt
-    """
+
     def __init__(self, master=None):
         QMainWindow.__init__(self, master)
         self.setWindowTitle("Spinal Group Animal Behaviour Analyser")
@@ -53,11 +52,11 @@ class Player(QMainWindow):
             self.LickStartStop()
         elif e.key() == Qt.Key_B:
             self.BiteStartStop()
-        elif e.key() == Qt.Key_Equal:
+        elif e.key() == Qt.Key_Equal or e.key() == Qt.Key_Enter:
             self.resetSpeed()
-        elif e.key() == Qt.Key_BracketLeft:
+        elif e.key() == Qt.Key_BracketLeft or  e.key() == Qt.Key_Plus:
             self.decreaseSpeed()
-        elif e.key() == Qt.Key_BracketRight:
+        elif e.key() == Qt.Key_BracketRight or  e.key() == Qt.Key_Minus:
             self.increaseSpeed()
 
     def createUI(self):
@@ -105,6 +104,7 @@ class Player(QMainWindow):
         self.volumeslider = QSlider(Qt.Horizontal, self)
         self.volumeslider.setMaximum(100)
         self.volumeslider.setValue(self.mediaplayer.audio_get_volume())
+        self.setVolume(0)
         self.volumeslider.setToolTip("Volume")
         self.videocontolbox.addWidget(self.volumeslider)
         self.volumeslider.valueChanged.connect(self.setVolume)
@@ -299,30 +299,64 @@ class Player(QMainWindow):
             ws1.title = "summary"
             ws2 = wb.create_sheet(title="LickData")
             ws3 = wb.create_sheet(title="BiteData")
-            if len(self.startLickTime) > 1:
-                _ = ws2.cell(column=1, row=1, value="Occurence")
-                _ = ws2.cell(column=2, row=1, value="Start Time")
-                _ = ws2.cell(column=3, row=1, value="Stop Time")
-                _ = ws2.cell(column=4, row=1, value="Duration")
 
-                for row in range(len(self.startLickTime)):
-                    _ = ws2.cell(column=1, row=row+2, value=row)
-                    _ = ws2.cell(column=2, row=row+2, value=self.startLickTime[row])
-                    _ = ws2.cell(column=3, row=row+2, value=self.stopLickTime[row])
-                    _ = ws2.cell(column=4, row=row+2, value='=C{0}-B{0}'.format(row+2))
-                _ = ws2.cell(column=4, row=row+3, value='=SUM(D2:D{0})'.format(row+2))
-            if len(self.startBiteTime) > 1:
-                _ = ws3.cell(column=1, row=1, value="Occurence")
-                _ = ws3.cell(column=2, row=1, value="Start Time")
-                _ = ws3.cell(column=3, row=1, value="Stop Time")
-                _ = ws3.cell(column=4, row=1, value="Duration")
+            # Set up summary sheet
+            _ = ws1.cell(column=1,row=1,value='Summary Sheet')
+            _ = ws1.cell(column=1,row=2,value='Animal ID')
+            _ = ws1.cell(column=2,row=2,value=self.animalID.text())
+            _ = ws1.cell(column=1,row=3,value='Date')
+            _ = ws1.cell(column=2,row=3,value=self.Date.text())
 
-                for row in range(len(self.startBiteTime)):
-                    _ = ws3.cell(column=1, row=row+2, value=row)
-                    _ = ws3.cell(column=2, row=row+2, value=self.startBiteTime[row])
-                    _ = ws3.cell(column=3, row=row+2, value=self.stopBiteTime[row])
-                    _ = ws3.cell(column=4, row=row+2, value='=C{0}-B{0}'.format(row+2))
-                _ = ws3.cell(column=4, row=row+3, value='=SUM(D2:D{0})'.format(row+2))
+            # Set up and fill in Lick Data
+            _ = ws2.cell(column=1, row=1, value="Occurence")
+            _ = ws2.cell(column=2, row=1, value="Start Time")
+            _ = ws2.cell(column=3, row=1, value="Stop Time")
+            _ = ws2.cell(column=4, row=1, value="Duration")
+
+            for row in range(len(self.startLickTime)):
+                _ = ws2.cell(column=1, row=row+2, value=row)
+                _ = ws2.cell(column=2, row=row+2, value=self.startLickTime[row])
+                _ = ws2.cell(column=3, row=row+2, value=self.stopLickTime[row])
+                _ = ws2.cell(column=4, row=row+2, value='=C{0}-B{0}'.format(row+2))
+            _ = ws2.cell(column=4, row=row+3, value='=SUM(D2:D{0})'.format(row+2))
+            
+            # Create summary for Lick Data
+            _ = ws1.cell(column=2,row=5,value='Lick Data')
+            _ = ws1.cell(column=1,row=6,value='Occurances')
+            _ = ws1.cell(column=2,row=6,value='=LickData!A{0}'.format(row+2))
+            _ = ws1.cell(column=1,row=7,value='Total Duration')
+            _ = ws1.cell(column=2,row=7,value='=LickData!D{0}'.format(row+3))
+            _ = ws1.cell(column=1,row=8,value='Average Duration')
+            _ = ws1.cell(column=2,row=8,value='=B7/B6')
+            _ = ws1.cell(column=1,row=9,value='Run Time')
+            _ = ws1.cell(column=2,row=9,value=self.media.get_duration())
+            _ = ws1.cell(column=1,row=10,value='Frequency')
+            _ = ws1.cell(column=2,row=10,value='=B6/B9')
+
+            # Set up and fill in Bite Data
+            _ = ws3.cell(column=1, row=1, value="Occurence")
+            _ = ws3.cell(column=2, row=1, value="Start Time")
+            _ = ws3.cell(column=3, row=1, value="Stop Time")
+            _ = ws3.cell(column=4, row=1, value="Duration")
+
+            for row in range(len(self.startBiteTime)):
+                _ = ws3.cell(column=1, row=row+2, value=row)
+                _ = ws3.cell(column=2, row=row+2, value=self.startBiteTime[row])
+                _ = ws3.cell(column=3, row=row+2, value=self.stopBiteTime[row])
+                _ = ws3.cell(column=4, row=row+2, value='=C{0}-B{0}'.format(row+2))
+            _ = ws3.cell(column=4, row=row+3, value='=SUM(D2:D{0})'.format(row+2))
+            
+            # Create summary for Bite Data
+            _ = ws1.cell(column=3,row=5,value='Bite Data')
+            _ = ws1.cell(column=3,row=6,value='=LickData!A{0}'.format(row+2))
+            _ = ws1.cell(column=3,row=7,value='=LickData!D{0}'.format(row+3))
+            _ = ws1.cell(column=3,row=8,value='=B7/B6')
+            _ = ws1.cell(column=3,row=9,value=self.media.get_duration())
+            _ = ws1.cell(column=3,row=10,value='=B6/B9')
+            
+            ws1.column_dimensions['A'].width = 15
+
+
 
             wb.save(savefilename)
         else:
