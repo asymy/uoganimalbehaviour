@@ -18,6 +18,8 @@
 
 import sys
 import os.path
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtWidgets import QMainWindow, QWidget, QFrame, QSlider, QHBoxLayout, QPushButton, \
@@ -45,6 +47,18 @@ class Player(QMainWindow):
         self.stopLickTime = []
         self.startBiteTime = []
         self.stopBiteTime = []
+
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_L:
+            self.LickStartStop()
+        elif e.key() == Qt.Key_B:
+            print('Bite key pressed')
+        elif e.key() == Qt.Key_Equal:
+            self.resetSpeed()
+        elif e.key() == Qt.Key_BracketLeft:
+            self.decreaseSpeed()
+        elif e.key() == Qt.Key_BracketRight:
+            self.increaseSpeed()
 
     def createUI(self):
         """Set up the user interface, signals & slots
@@ -120,6 +134,7 @@ class Player(QMainWindow):
 
         self.InfoSave.addStretch(1)
         self.savebutton = QPushButton("Save")
+        self.savebutton.clicked.connect(self.SaveData)
         self.InfoSave.addWidget(self.savebutton)
 
         self.vboxlayout = QVBoxLayout()
@@ -203,11 +218,14 @@ class Player(QMainWindow):
         """Set the volume
         """
         self.mediaplayer.audio_set_volume(Volume)
+        self.volumeslider.setValue(self.mediaplayer.audio_get_volume())
+
 
     def setSpeed(self, Speed):
         """Set the playback speed
         """
         self.mediaplayer.set_rate((Speed/100))
+        self.speedslider.setValue(self.mediaplayer.get_rate()*100)
 
     def setPosition(self, position):
         """Set the position
@@ -231,6 +249,32 @@ class Player(QMainWindow):
                 self.isLicking = False
                 self.stopLickTime.append(self.mediaplayer.get_position()*1000)
                 self.licktoggle.setText("Start Lick")
+
+    def SaveData(self):
+        wb = Workbook()
+        dest_filename = 'AnimalID_date.xlsx'
+        ws1 = wb.active
+        ws1.title = "summary"
+        ws2 = wb.create_sheet(title="LickData")
+        ws3 = wb.create_sheet(title="BiteData")
+
+        _ = ws2.cell(column=1, row=1, value="Occurence")
+        _ = ws2.cell(column=2, row=1, value="Start Time")
+        _ = ws2.cell(column=3, row=1, value="Stop Time")
+        _ = ws2.cell(column=4, row=1, value="Duration")
+
+        for row in range(len(self.startLickTime)):
+            _ = ws2.cell(column=1, row=row+2, value=row)
+            _ = ws2.cell(column=2, row=row+2, value=self.startLickTime[row])
+            _ = ws2.cell(column=3, row=row+2, value=self.stopLickTime[row])
+            _ = ws2.cell(column=4, row=row+2, value="=")
+
+        for row in range(len(self.startBiteTime)):
+            _ = ws3.cell(column=1, row=row+1, value=row)
+            _ = ws3.cell(column=2, row=row+1, value=self.startBiteTime[row])
+            _ = ws3.cell(column=3, row=row+1, value=self.stopBiteTime[row])
+
+        wb.save(filename = dest_filename)
 
     def updateUI(self):
         """updates the user interface"""
