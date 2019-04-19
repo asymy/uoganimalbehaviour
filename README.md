@@ -1,9 +1,28 @@
+# Animal Behaviour Analyser
+
+Tool for tracking bites and licks from pre-recorded videos.
+Will output an excel spreadsheet with information on the quanity, frequency and duration of behaviours.
+Designed for use in the spinal cord group at the University of Glasgow.
+
 ## Requirements
 
 - Python3 (3.7.3 used to test)
 - PyVlc
 - PyQt5
 - openpyxl
+- vlc (32bit)
+
+# Instructions for installation
+
+- Download [python3](https://www.python.org/)
+- Download 32-bit version of [VLC](https://www.videolan.org/vlc/index.en-GB.html)
+- open a terminal window
+- copy this line:
+
+`pip install python-vlc, PyQt5, openpyxl`
+
+- download this project
+- run main.py
 
 ## TODO
 
