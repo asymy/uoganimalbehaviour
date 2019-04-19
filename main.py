@@ -270,8 +270,8 @@ class Player(QMainWindow):
                 self.licktoggle.setText("Start Lick")
 
     def SaveData(self):
+        dest_filename = self.animalID.text() + '_' + self.Date.text() + '.xlsx'
         wb = Workbook()
-        dest_filename = 'AnimalID_date.xlsx'
         ws1 = wb.active
         ws1.title = "summary"
         ws2 = wb.create_sheet(title="LickData")
@@ -286,12 +286,18 @@ class Player(QMainWindow):
             _ = ws2.cell(column=1, row=row+2, value=row)
             _ = ws2.cell(column=2, row=row+2, value=self.startLickTime[row])
             _ = ws2.cell(column=3, row=row+2, value=self.stopLickTime[row])
-            _ = ws2.cell(column=4, row=row+2, value="=")
+            _ = ws2.cell(column=4, row=row+2, value='=SUM(B{0},C{0})'.format(row+2))
+
+        _ = ws3.cell(column=1, row=1, value="Occurence")
+        _ = ws3.cell(column=2, row=1, value="Start Time")
+        _ = ws3.cell(column=3, row=1, value="Stop Time")
+        _ = ws3.cell(column=4, row=1, value="Duration")
 
         for row in range(len(self.startBiteTime)):
-            _ = ws3.cell(column=1, row=row+1, value=row)
-            _ = ws3.cell(column=2, row=row+1, value=self.startBiteTime[row])
-            _ = ws3.cell(column=3, row=row+1, value=self.stopBiteTime[row])
+            _ = ws3.cell(column=1, row=row+2, value=row)
+            _ = ws3.cell(column=2, row=row+2, value=self.startBiteTime[row])
+            _ = ws3.cell(column=3, row=row+2, value=self.stopBiteTime[row])
+            _ = ws3.cell(column=4, row=row+2, value='=SUM(B{0},C{0})'.format(row+2))
 
         wb.save(filename = dest_filename)
 
