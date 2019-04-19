@@ -52,7 +52,7 @@ class Player(QMainWindow):
         if e.key() == Qt.Key_L:
             self.LickStartStop()
         elif e.key() == Qt.Key_B:
-            print('Bite key pressed')
+            self.BiteStartStop()
         elif e.key() == Qt.Key_Equal:
             self.resetSpeed()
         elif e.key() == Qt.Key_BracketLeft:
@@ -115,6 +115,12 @@ class Player(QMainWindow):
         self.licktoggle.clicked.connect(self.LickStartStop)
         self.LickBehaviour.addStretch(1)
 
+        self.BiteBehaviour = QHBoxLayout()
+        self.bitetoggle = QPushButton("Start Bite")
+        self.BiteBehaviour.addWidget(self.bitetoggle)
+        self.bitetoggle.clicked.connect(self.BiteStartStop)
+        self.BiteBehaviour.addStretch(1)
+
         self.InfoSave = QHBoxLayout()
         self.InfoSave.addStretch(20)
         self.IDLabel = QLabel(self)
@@ -142,6 +148,7 @@ class Player(QMainWindow):
         self.vboxlayout.addWidget(self.positionslider)
         self.vboxlayout.addLayout(self.videocontolbox)
         self.vboxlayout.addLayout(self.LickBehaviour)
+        self.vboxlayout.addLayout(self.BiteBehaviour)
         self.vboxlayout.addLayout(self.InfoSave)
         self.widget.setLayout(self.vboxlayout)
 
@@ -269,37 +276,57 @@ class Player(QMainWindow):
                 self.stopLickTime.append(self.mediaplayer.get_position()*1000)
                 self.licktoggle.setText("Start Lick")
 
+    def BiteStartStop(self):
+        """Toggle state of licking behaviour
+        """
+        if self.mediaplayer.is_playing():
+            if self.isBiting == False:
+                self.isBiting = True
+                self.bitetoggle.setText("Stop Bite")
+                self.startBiteTime.append(self.mediaplayer.get_position()*1000)
+            else:
+                self.isBiting = False
+                self.stopBiteTime.append(self.mediaplayer.get_position()*1000)
+                self.bitetoggle.setText("Start Bite")
+
     def SaveData(self):
         dest_filename = self.animalID.text() + '_' + self.Date.text() + '.xlsx'
-        wb = Workbook()
-        ws1 = wb.active
-        ws1.title = "summary"
-        ws2 = wb.create_sheet(title="LickData")
-        ws3 = wb.create_sheet(title="BiteData")
+        savefilename, _ = QFileDialog.getSaveFileName(self, 'Save File', os.path.expanduser('~') + '\\' + dest_filename, '*.xlsx')
+        if savefilename:
+            print(savefilename)
+            wb = Workbook()
+            ws1 = wb.active
+            ws1.title = "summary"
+            ws2 = wb.create_sheet(title="LickData")
+            ws3 = wb.create_sheet(title="BiteData")
+            if len(self.startLickTime) > 1:
+                _ = ws2.cell(column=1, row=1, value="Occurence")
+                _ = ws2.cell(column=2, row=1, value="Start Time")
+                _ = ws2.cell(column=3, row=1, value="Stop Time")
+                _ = ws2.cell(column=4, row=1, value="Duration")
 
-        _ = ws2.cell(column=1, row=1, value="Occurence")
-        _ = ws2.cell(column=2, row=1, value="Start Time")
-        _ = ws2.cell(column=3, row=1, value="Stop Time")
-        _ = ws2.cell(column=4, row=1, value="Duration")
+                for row in range(len(self.startLickTime)):
+                    _ = ws2.cell(column=1, row=row+2, value=row)
+                    _ = ws2.cell(column=2, row=row+2, value=self.startLickTime[row])
+                    _ = ws2.cell(column=3, row=row+2, value=self.stopLickTime[row])
+                    _ = ws2.cell(column=4, row=row+2, value='=C{0}-B{0}'.format(row+2))
+                _ = ws2.cell(column=4, row=row+3, value='=SUM(D2:D{0})'.format(row+2))
+            if len(self.startBiteTime) > 1:
+                _ = ws3.cell(column=1, row=1, value="Occurence")
+                _ = ws3.cell(column=2, row=1, value="Start Time")
+                _ = ws3.cell(column=3, row=1, value="Stop Time")
+                _ = ws3.cell(column=4, row=1, value="Duration")
 
-        for row in range(len(self.startLickTime)):
-            _ = ws2.cell(column=1, row=row+2, value=row)
-            _ = ws2.cell(column=2, row=row+2, value=self.startLickTime[row])
-            _ = ws2.cell(column=3, row=row+2, value=self.stopLickTime[row])
-            _ = ws2.cell(column=4, row=row+2, value='=SUM(B{0},C{0})'.format(row+2))
+                for row in range(len(self.startBiteTime)):
+                    _ = ws3.cell(column=1, row=row+2, value=row)
+                    _ = ws3.cell(column=2, row=row+2, value=self.startBiteTime[row])
+                    _ = ws3.cell(column=3, row=row+2, value=self.stopBiteTime[row])
+                    _ = ws3.cell(column=4, row=row+2, value='=C{0}-B{0}'.format(row+2))
+                _ = ws3.cell(column=4, row=row+3, value='=SUM(D2:D{0})'.format(row+2))
 
-        _ = ws3.cell(column=1, row=1, value="Occurence")
-        _ = ws3.cell(column=2, row=1, value="Start Time")
-        _ = ws3.cell(column=3, row=1, value="Stop Time")
-        _ = ws3.cell(column=4, row=1, value="Duration")
-
-        for row in range(len(self.startBiteTime)):
-            _ = ws3.cell(column=1, row=row+2, value=row)
-            _ = ws3.cell(column=2, row=row+2, value=self.startBiteTime[row])
-            _ = ws3.cell(column=3, row=row+2, value=self.stopBiteTime[row])
-            _ = ws3.cell(column=4, row=row+2, value='=SUM(B{0},C{0})'.format(row+2))
-
-        wb.save(filename = dest_filename)
+            wb.save(savefilename)
+        else:
+            return
 
     def updateUI(self):
         """updates the user interface"""
