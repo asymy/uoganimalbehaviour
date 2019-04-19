@@ -6,6 +6,9 @@
 #
 # Alison Symon for the spinal cord group at the University of Glasgow
 # 2019
+# 
+# Based on heavily on the vlc-PyQt5-example found at:
+# https://github.com/devos50/vlc-pyqt5-example
 #
 #
 # This program is free software; you can redistribute it and/or modify
