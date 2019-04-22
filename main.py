@@ -337,9 +337,7 @@ class Player(QMainWindow):
             _ = ws1.cell(column=3,row=10,value='=B6/B9')
             
             ws1.column_dimensions['A'].width = 15
-
-
-
+            
             wb.save(savefilename)
         else:
             return
