@@ -10,7 +10,7 @@ Designed for use in the spinal cord group at the University of Glasgow.
 - PyVlc
 - PyQt5
 - openpyxl
-- vlc (32bit)
+- VLC (32bit)
 
 ## Instructions for installation
 
@@ -20,7 +20,9 @@ Designed for use in the spinal cord group at the University of Glasgow.
 - copy these lines into terminal window and wait for them to install:
 
 `pip install python-vlc`
+
 `pip install openpyxl`
+
 `pip install PyQt5`
 
 - download this project

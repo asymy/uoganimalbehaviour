@@ -24,16 +24,16 @@ import os.path
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtGui import QPalette, QColor, QKeySequence
 from PyQt5.QtWidgets import QMainWindow, QWidget, QFrame, QSlider, QHBoxLayout, QPushButton, \
-    QVBoxLayout, QAction, QFileDialog, QApplication, QLineEdit, QLabel
+    QVBoxLayout, QAction, QFileDialog, QApplication, QLineEdit, QLabel, QShortcut
 import vlc
 
 class Player(QMainWindow):
 
     def __init__(self, master=None):
         QMainWindow.__init__(self, master)
-        self.setWindowTitle("Spinal Group Animal Behaviour Analyser")
+        self.setWindowTitle('Spinal Group Animal Behaviour Analyser')
 
         # creating a basic vlc instance
         self.instance = vlc.Instance()
@@ -51,11 +51,7 @@ class Player(QMainWindow):
         self.stopBiteTime = []
 
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_L:
-            self.LickStartStop()
-        elif e.key() == Qt.Key_B:
-            self.BiteStartStop()
-        elif e.key() == Qt.Key_Equal or e.key() == Qt.Key_Enter:
+        if e.key() == Qt.Key_Equal or e.key() == Qt.Key_Enter:
             self.resetSpeed()
         elif e.key() == Qt.Key_BracketLeft or  e.key() == Qt.Key_Plus:
             self.decreaseSpeed()
@@ -67,13 +63,7 @@ class Player(QMainWindow):
         """
         self.widget = QWidget(self)
         self.setCentralWidget(self.widget)
-
-        # In this widget, the video will be drawn
-        if sys.platform == "darwin": # for MacOS
-            from PyQt5.QtWidgets import QMacCocoaViewContainer	
-            self.videoframe = QMacCocoaViewContainer(0)
-        else:
-            self.videoframe = QFrame()
+        self.videoframe = QFrame()
         self.palette = self.videoframe.palette()
         self.palette.setColor (QPalette.Window,
                                QColor(0,0,0))
@@ -81,45 +71,55 @@ class Player(QMainWindow):
         self.videoframe.setAutoFillBackground(True)
 
         self.positionslider = QSlider(Qt.Horizontal, self)
-        self.positionslider.setToolTip("Position")
+        self.positionslider.setToolTip('Position')
         self.positionslider.setMaximum(1000)
         self.positionslider.sliderMoved.connect(self.setPosition)
 
         self.videocontolbox = QHBoxLayout()
-        self.playbutton = QPushButton("Play")
+        self.playbutton = QPushButton('Play')
+        QShortcut(QKeySequence(Qt.Key_Space), self).activated.connect(self.PlayPause)
         self.videocontolbox.addWidget(self.playbutton)
         self.playbutton.clicked.connect(self.PlayPause)
 
-        self.stopbutton = QPushButton("Stop")
+        self.stopbutton = QPushButton('Stop')
         self.videocontolbox.addWidget(self.stopbutton)
         self.stopbutton.clicked.connect(self.Stop)
 
         self.videocontolbox.addStretch(1)
 
+        self.SpeedLabel = QLabel(self)
+        self.SpeedLabel.setText(' Playback Speed: ')
+        self.videocontolbox.addWidget(self.SpeedLabel)
         self.speedslider = QSlider(Qt.Horizontal, self)
         self.speedslider.setMaximum(200)
         self.speedslider.setMinimum(50)
         self.speedslider.setValue(self.mediaplayer.get_rate()*100)
-        self.speedslider.setToolTip("Speed")
+        self.speedslider.setToolTip('Speed')
         self.videocontolbox.addWidget(self.speedslider)
         self.speedslider.valueChanged.connect(self.setSpeed)
 
+        
+        self.VolLabel = QLabel(self)
+        self.VolLabel.setText(' Volume: ')
+        self.videocontolbox.addWidget(self.VolLabel)
         self.volumeslider = QSlider(Qt.Horizontal, self)
         self.volumeslider.setMaximum(100)
         self.volumeslider.setValue(self.mediaplayer.audio_get_volume())
         self.setVolume(0)
-        self.volumeslider.setToolTip("Volume")
+        self.volumeslider.setToolTip('Volume')
         self.videocontolbox.addWidget(self.volumeslider)
         self.volumeslider.valueChanged.connect(self.setVolume)
 
         self.LickBehaviour = QHBoxLayout()
-        self.licktoggle = QPushButton("Start Lick")
+        self.licktoggle = QPushButton('Start Lick')
         self.LickBehaviour.addWidget(self.licktoggle)
+        QShortcut(QKeySequence(Qt.Key_L), self).activated.connect(self.LickStartStop)
         self.licktoggle.clicked.connect(self.LickStartStop)
         self.LickBehaviour.addStretch(1)
 
         self.BiteBehaviour = QHBoxLayout()
-        self.bitetoggle = QPushButton("Start Bite")
+        self.bitetoggle = QPushButton('Start Bite')
+        QShortcut(QKeySequence(Qt.Key_B), self).activated.connect(self.BiteStartStop)
         self.BiteBehaviour.addWidget(self.bitetoggle)
         self.bitetoggle.clicked.connect(self.BiteStartStop)
         self.BiteBehaviour.addStretch(1)
@@ -130,7 +130,7 @@ class Player(QMainWindow):
         self.IDLabel.setText('Animal ID: ')
         self.InfoSave.addWidget(self.IDLabel)
         self.animalID = QLineEdit(self)
-        self.animalID.setText("")
+        self.animalID.setText('')
         self.InfoSave.addWidget(self.animalID)
         self.InfoSave.addStretch(1)
 
@@ -138,11 +138,12 @@ class Player(QMainWindow):
         self.DateLabel.setText('Date: ')
         self.InfoSave.addWidget(self.DateLabel)
         self.Date = QLineEdit(self)
-        self.Date.setText("")
+        self.Date.setText('')
         self.InfoSave.addWidget(self.Date)
 
         self.InfoSave.addStretch(1)
-        self.savebutton = QPushButton("Save")
+        self.savebutton = QPushButton('Save')
+        QShortcut(QKeySequence('Ctrl+S'), self).activated.connect(self.SaveData)
         self.savebutton.clicked.connect(self.SaveData)
         self.InfoSave.addWidget(self.savebutton)
 
@@ -155,12 +156,12 @@ class Player(QMainWindow):
         self.vboxlayout.addLayout(self.InfoSave)
         self.widget.setLayout(self.vboxlayout)
 
-        open = QAction("&Open", self)
+        open = QAction('&Open', self)
         open.triggered.connect(self.OpenFile)
-        exit = QAction("&Exit", self)
+        exit = QAction('&Exit', self)
         exit.triggered.connect(sys.exit)
         menubar = self.menuBar()
-        filemenu = menubar.addMenu("&File")
+        filemenu = menubar.addMenu('&File')
         filemenu.addAction(open)
         filemenu.addSeparator()
         filemenu.addAction(exit)
@@ -174,14 +175,14 @@ class Player(QMainWindow):
         """
         if self.mediaplayer.is_playing():
             self.mediaplayer.pause()
-            self.playbutton.setText("Play")
+            self.playbutton.setText('Play')
             self.isPaused = True
         else:
             if self.mediaplayer.play() == -1:
                 self.OpenFile()
                 return
             self.mediaplayer.play()
-            self.playbutton.setText("Pause")
+            self.playbutton.setText('Pause')
             self.timer.start()
             self.isPaused = False
 
@@ -189,12 +190,12 @@ class Player(QMainWindow):
         """Stop player
         """
         self.mediaplayer.stop()
-        self.playbutton.setText("Play")
+        self.playbutton.setText('Play')
 
     def OpenFile(self, filename=None):
         """Open a media file in a MediaPlayer
         """
-        filename = QFileDialog.getOpenFileName(self, "Open File", os.path.expanduser('~'))[0]
+        filename = QFileDialog.getOpenFileName(self, 'Open File', os.path.expanduser('~'))[0]
         if not filename:
             return
 
@@ -204,23 +205,11 @@ class Player(QMainWindow):
         self.media = self.instance.media_new(filename)
         # put the media in the media player
         self.mediaplayer.set_media(self.media)
-
-        # parse the metadata of the file
-        self.media.parse()
-        # set the title of the track as window title
-        # self.setWindowTitle(self.media.get_meta(0))
-
         # the media player has to be 'connected' to the QFrame
         # (otherwise a video would be displayed in it's own window)
-        # this is platform specific!
         # you have to give the id of the QFrame (or similar object) to
         # vlc, different platforms have different functions for this
-        if sys.platform.startswith('linux'): # for Linux using the X Server
-            self.mediaplayer.set_xwindow(self.videoframe.winId())
-        elif sys.platform == "win32": # for Windows
-            self.mediaplayer.set_hwnd(self.videoframe.winId())
-        elif sys.platform == "darwin": # for MacOS
-            self.mediaplayer.set_nsobject(int(self.videoframe.winId()))
+        self.mediaplayer.set_hwnd(self.videoframe.winId())
         self.PlayPause()
 
 
@@ -272,12 +261,12 @@ class Player(QMainWindow):
         if self.mediaplayer.is_playing():
             if self.isLicking == False:
                 self.isLicking = True
-                self.licktoggle.setText("Stop Lick")
+                self.licktoggle.setText('Stop Lick')
                 self.startLickTime.append(self.mediaplayer.get_position()*1000)
             else:
                 self.isLicking = False
                 self.stopLickTime.append(self.mediaplayer.get_position()*1000)
-                self.licktoggle.setText("Start Lick")
+                self.licktoggle.setText('Start Lick')
 
     def BiteStartStop(self):
         """Toggle state of licking behaviour
@@ -285,12 +274,12 @@ class Player(QMainWindow):
         if self.mediaplayer.is_playing():
             if self.isBiting == False:
                 self.isBiting = True
-                self.bitetoggle.setText("Stop Bite")
+                self.bitetoggle.setText('Stop Bite')
                 self.startBiteTime.append(self.mediaplayer.get_position()*1000)
             else:
                 self.isBiting = False
                 self.stopBiteTime.append(self.mediaplayer.get_position()*1000)
-                self.bitetoggle.setText("Start Bite")
+                self.bitetoggle.setText('Start Bite')
 
     def SaveData(self):
         dest_filename = self.animalID.text() + '_' + self.Date.text() + '.xlsx'
@@ -299,9 +288,9 @@ class Player(QMainWindow):
             print(savefilename)
             wb = Workbook()
             ws1 = wb.active
-            ws1.title = "summary"
-            ws2 = wb.create_sheet(title="LickData")
-            ws3 = wb.create_sheet(title="BiteData")
+            ws1.title = 'summary'
+            ws2 = wb.create_sheet(title='LickData')
+            ws3 = wb.create_sheet(title='BiteData')
 
             # Set up summary sheet
             _ = ws1.cell(column=1,row=1,value='Summary Sheet')
@@ -311,10 +300,10 @@ class Player(QMainWindow):
             _ = ws1.cell(column=2,row=3,value=self.Date.text())
 
             # Set up and fill in Lick Data
-            _ = ws2.cell(column=1, row=1, value="Occurence")
-            _ = ws2.cell(column=2, row=1, value="Start Time")
-            _ = ws2.cell(column=3, row=1, value="Stop Time")
-            _ = ws2.cell(column=4, row=1, value="Duration")
+            _ = ws2.cell(column=1, row=1, value='Occurence')
+            _ = ws2.cell(column=2, row=1, value='Start Time')
+            _ = ws2.cell(column=3, row=1, value='Stop Time')
+            _ = ws2.cell(column=4, row=1, value='Duration')
 
             for row in range(len(self.startLickTime)):
                 _ = ws2.cell(column=1, row=row+2, value=row)
@@ -337,10 +326,10 @@ class Player(QMainWindow):
             _ = ws1.cell(column=2,row=10,value='=B6/B9')
 
             # Set up and fill in Bite Data
-            _ = ws3.cell(column=1, row=1, value="Occurence")
-            _ = ws3.cell(column=2, row=1, value="Start Time")
-            _ = ws3.cell(column=3, row=1, value="Stop Time")
-            _ = ws3.cell(column=4, row=1, value="Duration")
+            _ = ws3.cell(column=1, row=1, value='Occurence')
+            _ = ws3.cell(column=2, row=1, value='Start Time')
+            _ = ws3.cell(column=3, row=1, value='Stop Time')
+            _ = ws3.cell(column=4, row=1, value='Duration')
 
             for row in range(len(self.startBiteTime)):
                 _ = ws3.cell(column=1, row=row+2, value=row)
@@ -376,11 +365,11 @@ class Player(QMainWindow):
             self.timer.stop()
             if not self.isPaused:
                 # after the video finished, the play button stills shows
-                # "Pause", not the desired behavior of a media player
+                # 'Pause', not the desired behavior of a media player
                 # this will fix it
                 self.Stop()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app = QApplication(sys.argv)
     player = Player()
     player.show()
