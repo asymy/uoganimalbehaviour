@@ -272,7 +272,9 @@ class Player(QMainWindow):
                 self.bitetoggle.setText('Start Bite')
 
     def SaveData(self):
-        dest_filename = self.animalID.text() + '_' + self.Date.text() + '.xlsx'
+        date = self.Date.text().replace('/','.')
+        date = date.replace('\\','.')
+        dest_filename = self.animalID.text() + '_' + date + '.xlsx'
         savefilename, _ = QFileDialog.getSaveFileName(self, 'Save File', os.path.expanduser('~') + '\\' + dest_filename, '*.xlsx')
         if savefilename:
             print(savefilename)
