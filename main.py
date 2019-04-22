@@ -59,8 +59,7 @@ class Player(QMainWindow):
             self.increaseSpeed()
 
     def createUI(self):
-        """Set up the user interface, signals & slots
-        """
+        # Set up the user interface, signals & slots
         self.widget = QWidget(self)
         self.setCentralWidget(self.widget)
         self.videoframe = QFrame()
@@ -97,7 +96,6 @@ class Player(QMainWindow):
         self.speedslider.setToolTip('Speed')
         self.videocontolbox.addWidget(self.speedslider)
         self.speedslider.valueChanged.connect(self.setSpeed)
-
         
         self.VolLabel = QLabel(self)
         self.VolLabel.setText(' Volume: ')
@@ -171,8 +169,7 @@ class Player(QMainWindow):
         self.timer.timeout.connect(self.updateUI)
 
     def PlayPause(self):
-        """Toggle play/pause status
-        """
+        # Toggle play/pause status
         if self.mediaplayer.is_playing():
             self.mediaplayer.pause()
             self.playbutton.setText('Play')
@@ -187,14 +184,12 @@ class Player(QMainWindow):
             self.isPaused = False
 
     def Stop(self):
-        """Stop player
-        """
+        # Stop player
         self.mediaplayer.stop()
         self.playbutton.setText('Play')
 
     def OpenFile(self, filename=None):
-        """Open a media file in a MediaPlayer
-        """
+        # Open a media file in a MediaPlayer
         filename = QFileDialog.getOpenFileName(self, 'Open File', os.path.expanduser('~'))[0]
         if not filename:
             return
@@ -214,13 +209,12 @@ class Player(QMainWindow):
 
 
     def setVolume(self, Volume):
-        """Set the volume
-        """
+        # Set the volume
         self.mediaplayer.audio_set_volume(Volume)
         self.volumeslider.setValue(self.mediaplayer.audio_get_volume())
 
     def increaseSpeed(self):
-        "increase the speed"
+        # increase the speed
         current = self.mediaplayer.get_rate()*100
         new = current + 25
         if new > 200:
@@ -228,7 +222,7 @@ class Player(QMainWindow):
         self.setSpeed(new)
 
     def decreaseSpeed(self):
-        "decrease the speed"
+        # decrease the speed
         current = self.mediaplayer.get_rate()*100
         new = current - 25
         if new < 50:
@@ -240,14 +234,12 @@ class Player(QMainWindow):
 
 
     def setSpeed(self, Speed):
-        """Set the playback speed
-        """
+        # Set the playback speed
         self.mediaplayer.set_rate((Speed/100))
         self.speedslider.setValue(self.mediaplayer.get_rate()*100)
 
     def setPosition(self, position):
-        """Set the position
-        """
+        # Set the position
         # setting the position to where the slider was dragged
         self.mediaplayer.set_position(position / 1000.0)
         # the vlc MediaPlayer needs a float value between 0 and 1, Qt
@@ -256,8 +248,7 @@ class Player(QMainWindow):
         # (1000 should be enough)
 
     def LickStartStop(self):
-        """Toggle state of licking behaviour
-        """
+        # Toggle state of licking behaviour
         if self.mediaplayer.is_playing():
             if self.isLicking == False:
                 self.isLicking = True
@@ -269,8 +260,7 @@ class Player(QMainWindow):
                 self.licktoggle.setText('Start Lick')
 
     def BiteStartStop(self):
-        """Toggle state of licking behaviour
-        """
+        # Toggle state of licking behaviour
         if self.mediaplayer.is_playing():
             if self.isBiting == False:
                 self.isBiting = True
@@ -355,7 +345,7 @@ class Player(QMainWindow):
             return
 
     def updateUI(self):
-        """updates the user interface"""
+        # updates the user interface
         # setting the slider to the desired position
         
         self.positionslider.setValue(self.mediaplayer.get_position() * 1000)
