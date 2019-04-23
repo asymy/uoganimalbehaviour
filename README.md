@@ -33,7 +33,9 @@ Designed for use in the spinal cord group at the University of Glasgow.
 - Control + S = Save
 - B = Start Bite
 - L = Start Lick
-- [/+ = Increase Speed 
+- [/+ = Increase Speed
+- D = move forward
+- A = move back
 
 ## TODO
 

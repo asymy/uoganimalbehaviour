@@ -57,9 +57,9 @@ class Player(QMainWindow):
             self.decreaseSpeed()
         elif e.key() == Qt.Key_BracketRight or  e.key() == Qt.Key_Minus:
             self.increaseSpeed()
-        elif e.key() == Qt.Key_A:
-            self.moveframeforward()
         elif e.key() == Qt.Key_D:
+            self.moveframeforward()
+        elif e.key() == Qt.Key_A:
             self.moveframebackward()
 
     def createUI(self):
@@ -274,10 +274,12 @@ class Player(QMainWindow):
                 self.bitetoggle.setText('Start Bite')
 
     def moveframeforward(self):
-        print(self.mediaplayer.get_time()/1000)
+        ct = self.mediaplayer.get_time()
+        self.mediaplayer.set_time(ct+40)
 
     def moveframebackward(self):
-        print('minus one')
+        ct = self.mediaplayer.get_time()
+        self.mediaplayer.set_time(ct-40)
 
     def SaveData(self):
         date = self.Date.text().replace('/','.')
