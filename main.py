@@ -57,6 +57,10 @@ class Player(QMainWindow):
             self.decreaseSpeed()
         elif e.key() == Qt.Key_BracketRight or  e.key() == Qt.Key_Minus:
             self.increaseSpeed()
+        elif e.key() == Qt.Key_A:
+            self.moveframeforward()
+        elif e.key() == Qt.Key_D:
+            self.moveframebackward()
 
     def createUI(self):
         # Set up the user interface, signals & slots
@@ -69,21 +73,19 @@ class Player(QMainWindow):
         self.videoframe.setPalette(self.palette)
         self.videoframe.setAutoFillBackground(True)
 
+        self.videocontolbox1 = QHBoxLayout()
+        self.playbutton = QPushButton('Play')
+        QShortcut(QKeySequence(Qt.Key_Space), self).activated.connect(self.PlayPause)
+        self.videocontolbox1.addWidget(self.playbutton)
+        self.playbutton.clicked.connect(self.PlayPause)
+
         self.positionslider = QSlider(Qt.Horizontal, self)
+        self.videocontolbox1.addWidget(self.positionslider)
         self.positionslider.setToolTip('Position')
         self.positionslider.setMaximum(1000)
         self.positionslider.sliderMoved.connect(self.setPosition)
 
         self.videocontolbox = QHBoxLayout()
-        self.playbutton = QPushButton('Play')
-        QShortcut(QKeySequence(Qt.Key_Space), self).activated.connect(self.PlayPause)
-        self.videocontolbox.addWidget(self.playbutton)
-        self.playbutton.clicked.connect(self.PlayPause)
-
-        self.stopbutton = QPushButton('Stop')
-        self.videocontolbox.addWidget(self.stopbutton)
-        self.stopbutton.clicked.connect(self.Stop)
-
         self.videocontolbox.addStretch(1)
 
         self.SpeedLabel = QLabel(self)
@@ -147,7 +149,7 @@ class Player(QMainWindow):
 
         self.vboxlayout = QVBoxLayout()
         self.vboxlayout.addWidget(self.videoframe)
-        self.vboxlayout.addWidget(self.positionslider)
+        self.vboxlayout.addLayout(self.videocontolbox1)
         self.vboxlayout.addLayout(self.videocontolbox)
         self.vboxlayout.addLayout(self.LickBehaviour)
         self.vboxlayout.addLayout(self.BiteBehaviour)
@@ -253,10 +255,10 @@ class Player(QMainWindow):
             if self.isLicking == False:
                 self.isLicking = True
                 self.licktoggle.setText('Stop Lick')
-                self.startLickTime.append(self.mediaplayer.get_position()*1000)
+                self.startLickTime.append(self.mediaplayer.get_time()/1000)
             else:
                 self.isLicking = False
-                self.stopLickTime.append(self.mediaplayer.get_position()*1000)
+                self.stopLickTime.append(self.mediaplayer.get_time()/1000)
                 self.licktoggle.setText('Start Lick')
 
     def BiteStartStop(self):
@@ -265,11 +267,17 @@ class Player(QMainWindow):
             if self.isBiting == False:
                 self.isBiting = True
                 self.bitetoggle.setText('Stop Bite')
-                self.startBiteTime.append(self.mediaplayer.get_position()*1000)
+                self.startBiteTime.append(self.mediaplayer.get_time()/1000)
             else:
                 self.isBiting = False
-                self.stopBiteTime.append(self.mediaplayer.get_position()*1000)
+                self.stopBiteTime.append(self.mediaplayer.get_time()/1000)
                 self.bitetoggle.setText('Start Bite')
+
+    def moveframeforward(self):
+        print(self.mediaplayer.get_time()/1000)
+
+    def moveframebackward(self):
+        print('minus one')
 
     def SaveData(self):
         date = self.Date.text().replace('/','.')

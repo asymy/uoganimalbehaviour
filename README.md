@@ -28,6 +28,13 @@ Designed for use in the spinal cord group at the University of Glasgow.
 - download this project
 - run main.py
 
+## Shortcuts
+
+- Control + S = Save
+- B = Start Bite
+- L = Start Lick
+- [/+ = Increase Speed 
+
 ## TODO
 
 - [ ] add markers for indicating where the behaviour occurs
@@ -37,5 +44,6 @@ Designed for use in the spinal cord group at the University of Glasgow.
   - [x] summary sheet
   - [x] indication that it has been saved/option on place to save
 - [ ] perhaps .ini file or similar which will allow users to customise their file saving/opening defualt locations
+- [ ] add run time/time elapsed?
 
 ## Known Issues
