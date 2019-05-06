@@ -1,6 +1,5 @@
 # ! /usr/bin/python
 #
-#
 # Software for analysing the behaviour of animals, specifically 
 # licking and biting from pre-recorded videos.
 #
@@ -10,13 +9,12 @@
 # Based on heavily on the vlc-PyQt5-example found at:
 # https://github.com/devos50/vlc-pyqt5-example
 #
-#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3git of the License, or
 # (at your option) any later version.
 #
-#
+
 
 
 import sys
@@ -27,6 +25,7 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPalette, QColor, QKeySequence
 from PyQt5.QtWidgets import QMainWindow, QWidget, QFrame, QSlider, QHBoxLayout, QPushButton, \
     QVBoxLayout, QAction, QFileDialog, QApplication, QLineEdit, QLabel, QShortcut
+from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
 import vlc
 
 class Player(QMainWindow):
@@ -40,15 +39,25 @@ class Player(QMainWindow):
         # creating an empty vlc media player
         self.mediaplayer = self.instance.media_player_new()
 
+        bite_str = """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#CF3B2F"><path d="M0 0h24v24H0z" fill="none"/><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg> """
+
+        self.svg_bite = bytearray(bite_str, encoding='utf-8')
+
+        lick_str = """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#2FCFC2"><path d="M0 0h24v24H0z" fill="none"/><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>"""
+
+        self.svg_lick = bytearray(lick_str, encoding='utf-8')
+
         self.createUI()
         self.isPaused = False
         self.isLicking = False
-        self.isBiting = False
+        self.isBiting = False 
 
         self.startLickTime = []
         self.stopLickTime = []
         self.startBiteTime = []
         self.stopBiteTime = []
+        
+        
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Equal or e.key() == Qt.Key_Enter:
@@ -112,6 +121,7 @@ class Player(QMainWindow):
 
         self.LickBehaviour = QHBoxLayout()
         self.licktoggle = QPushButton('Start Lick')
+        self.licktoggle.setStyleSheet("background-color:#2FCFC2")
         self.LickBehaviour.addWidget(self.licktoggle)
         QShortcut(QKeySequence(Qt.Key_L), self).activated.connect(self.LickStartStop)
         self.licktoggle.clicked.connect(self.LickStartStop)
@@ -119,9 +129,19 @@ class Player(QMainWindow):
 
         self.BiteBehaviour = QHBoxLayout()
         self.bitetoggle = QPushButton('Start Bite')
+        self.bitetoggle.setStyleSheet("background-color:#ED3628")
         QShortcut(QKeySequence(Qt.Key_B), self).activated.connect(self.BiteStartStop)
         self.BiteBehaviour.addWidget(self.bitetoggle)
         self.bitetoggle.clicked.connect(self.BiteStartStop)
+
+        
+
+        self.svgWidget = QSvgWidget()
+        self.svgWidget.renderer().load(self.svg_bite)
+        self.svgWidget.setFixedHeight(30)
+        self.svgWidget.setFixedWidth(30)
+        self.BiteBehaviour.addWidget(self.svgWidget)
+
         self.BiteBehaviour.addStretch(1)
 
         self.InfoSave = QHBoxLayout()
@@ -268,9 +288,12 @@ class Player(QMainWindow):
                 self.isBiting = True
                 self.bitetoggle.setText('Stop Bite')
                 self.startBiteTime.append(self.mediaplayer.get_time()/1000)
+                self.mediaplayer.get_position()
+                
             else:
                 self.isBiting = False
                 self.stopBiteTime.append(self.mediaplayer.get_time()/1000)
+                
                 self.bitetoggle.setText('Start Bite')
 
     def moveframeforward(self):
