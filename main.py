@@ -27,6 +27,9 @@ from PyQt5.QtWidgets import QMainWindow, QWidget, QFrame, QSlider, QHBoxLayout, 
     QVBoxLayout, QAction, QFileDialog, QApplication, QLineEdit, QLabel, QShortcut
 from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
 import vlc
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 
 class Player(QMainWindow):
 
@@ -121,20 +124,25 @@ class Player(QMainWindow):
 
         self.LickBehaviour = QHBoxLayout()
         self.licktoggle = QPushButton('Start Lick')
-        self.licktoggle.setStyleSheet("background-color:#2FCFC2")
+        self.licktoggle.setStyleSheet("color:#01544D")
         self.LickBehaviour.addWidget(self.licktoggle)
         QShortcut(QKeySequence(Qt.Key_L), self).activated.connect(self.LickStartStop)
         self.licktoggle.clicked.connect(self.LickStartStop)
+
+        self.svgWidget = QSvgWidget()
+        self.svgWidget.renderer().load(self.svg_bite)
+        self.svgWidget.setFixedHeight(30)
+        self.svgWidget.setFixedWidth(30)
+        self.BiteBehaviour.addWidget(self.svgWidget)
+
         self.LickBehaviour.addStretch(1)
 
         self.BiteBehaviour = QHBoxLayout()
         self.bitetoggle = QPushButton('Start Bite')
-        self.bitetoggle.setStyleSheet("background-color:#ED3628")
+        self.bitetoggle.setStyleSheet("color:#600D07")
         QShortcut(QKeySequence(Qt.Key_B), self).activated.connect(self.BiteStartStop)
         self.BiteBehaviour.addWidget(self.bitetoggle)
         self.bitetoggle.clicked.connect(self.BiteStartStop)
-
-        
 
         self.svgWidget = QSvgWidget()
         self.svgWidget.renderer().load(self.svg_bite)
