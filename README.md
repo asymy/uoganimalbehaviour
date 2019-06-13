@@ -47,5 +47,8 @@ Designed for use in the spinal cord group at the University of Glasgow.
   - [x] indication that it has been saved/option on place to save
 - [ ] perhaps .ini file or similar which will allow users to customise their file saving/opening defualt locations
 - [ ] add run time/time elapsed?
+- [ ] make the items customisable e.g. foot lifting
+    - [ ] make the items customisable to be for time or just occurances
+    
 
 ## Known Issues

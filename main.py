@@ -130,10 +130,10 @@ class Player(QMainWindow):
         self.licktoggle.clicked.connect(self.LickStartStop)
 
         self.svgWidget = QSvgWidget()
-        self.svgWidget.renderer().load(self.svg_bite)
+        self.svgWidget.renderer().load(self.svg_lick)
         self.svgWidget.setFixedHeight(30)
         self.svgWidget.setFixedWidth(30)
-        self.BiteBehaviour.addWidget(self.svgWidget)
+        self.LickBehaviour.addWidget(self.svgWidget)
 
         self.LickBehaviour.addStretch(1)
 
@@ -149,6 +149,9 @@ class Player(QMainWindow):
         self.svgWidget.setFixedHeight(30)
         self.svgWidget.setFixedWidth(30)
         self.BiteBehaviour.addWidget(self.svgWidget)
+
+        static_canvas = FigureCanvas()
+        self.BiteBehaviour.addWidget(static_canvas)
 
         self.BiteBehaviour.addStretch(1)
 
