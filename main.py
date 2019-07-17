@@ -1,4 +1,4 @@
-# ! /usr/bin/python
+
 #
 # Software for analysing the behaviour of animals, specifically 
 # licking and biting from pre-recorded videos.
@@ -25,11 +25,7 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPalette, QColor, QKeySequence
 from PyQt5.QtWidgets import QMainWindow, QWidget, QFrame, QSlider, QHBoxLayout, QPushButton, \
     QVBoxLayout, QAction, QFileDialog, QApplication, QLineEdit, QLabel, QShortcut
-from PyQt5.QtSvg import QSvgWidget, QSvgRenderer
 import vlc
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
 
 class Player(QMainWindow):
 
@@ -41,14 +37,6 @@ class Player(QMainWindow):
         self.instance = vlc.Instance()
         # creating an empty vlc media player
         self.mediaplayer = self.instance.media_player_new()
-
-        bite_str = """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#CF3B2F"><path d="M0 0h24v24H0z" fill="none"/><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg> """
-
-        self.svg_bite = bytearray(bite_str, encoding='utf-8')
-
-        lick_str = """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#2FCFC2"><path d="M0 0h24v24H0z" fill="none"/><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>"""
-
-        self.svg_lick = bytearray(lick_str, encoding='utf-8')
 
         self.createUI()
         self.isPaused = False
@@ -129,12 +117,6 @@ class Player(QMainWindow):
         QShortcut(QKeySequence(Qt.Key_L), self).activated.connect(self.LickStartStop)
         self.licktoggle.clicked.connect(self.LickStartStop)
 
-        self.svgWidget = QSvgWidget()
-        self.svgWidget.renderer().load(self.svg_lick)
-        self.svgWidget.setFixedHeight(30)
-        self.svgWidget.setFixedWidth(30)
-        self.LickBehaviour.addWidget(self.svgWidget)
-
         self.LickBehaviour.addStretch(1)
 
         self.BiteBehaviour = QHBoxLayout()
@@ -144,14 +126,6 @@ class Player(QMainWindow):
         self.BiteBehaviour.addWidget(self.bitetoggle)
         self.bitetoggle.clicked.connect(self.BiteStartStop)
 
-        self.svgWidget = QSvgWidget()
-        self.svgWidget.renderer().load(self.svg_bite)
-        self.svgWidget.setFixedHeight(30)
-        self.svgWidget.setFixedWidth(30)
-        self.BiteBehaviour.addWidget(self.svgWidget)
-
-        static_canvas = FigureCanvas()
-        self.BiteBehaviour.addWidget(static_canvas)
 
         self.BiteBehaviour.addStretch(1)
 
