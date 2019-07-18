@@ -24,7 +24,7 @@ from openpyxl.utils import get_column_letter
 from PyQt5.QtCore import Qt, QTimer, QRect
 from PyQt5.QtGui import QPalette, QColor, QKeySequence
 from PyQt5.QtWidgets import QMainWindow, QWidget, QFrame, QSlider, QHBoxLayout, QPushButton, \
-    QVBoxLayout, QAction, QFileDialog, QApplication, QLineEdit, QLabel, QShortcut
+    QVBoxLayout, QAction, QFileDialog, QApplication, QLineEdit, QLabel, QShortcut, QButtonGroup
 import vlc
 
 class Player(QMainWindow):
@@ -46,8 +46,7 @@ class Player(QMainWindow):
         self.startLickTime = []
         self.stopLickTime = []
         self.startBiteTime = []
-        self.stopBiteTime = []
-        
+        self.stopBiteTime = []        
         
 
     def keyPressEvent(self, e):
@@ -131,6 +130,8 @@ class Player(QMainWindow):
 
         self.BiteBehaviour.addLayout(self.inicatorBiteBehaviour)
         self.BiteBehaviour.addStretch()
+        self.buttonGroup = QButtonGroup()
+        self.buttonGroup.buttonClicked.connect(self.modifydelete)
 
 
 
@@ -291,8 +292,15 @@ class Player(QMainWindow):
                 self.inicatorBiteBehaviour.addWidget(self.biteadd)
                 self.biteadd.clicked.connect(self.modifydelete)
 
-    def modifydelete(self):
-        print('not writen yet sorry!')
+                self.buttonGroup.addButton(self.biteadd)
+
+
+
+    def modifydelete(self, button):
+        for item in self.buttonGroup.buttons():
+            if button is item:
+                button.setStyleSheet('background-color:orange')
+
 
     def moveframeforward(self):
         ct = self.mediaplayer.get_time()
