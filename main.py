@@ -21,7 +21,7 @@ import sys
 import os.path
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, QRect
 from PyQt5.QtGui import QPalette, QColor, QKeySequence
 from PyQt5.QtWidgets import QMainWindow, QWidget, QFrame, QSlider, QHBoxLayout, QPushButton, \
     QVBoxLayout, QAction, QFileDialog, QApplication, QLineEdit, QLabel, QShortcut
@@ -127,7 +127,12 @@ class Player(QMainWindow):
         self.bitetoggle.clicked.connect(self.BiteStartStop)
 
 
-        self.BiteBehaviour.addStretch(1)
+        self.inicatorBiteBehaviour = QHBoxLayout()
+
+        self.BiteBehaviour.addLayout(self.inicatorBiteBehaviour)
+        self.BiteBehaviour.addStretch()
+
+
 
         self.InfoSave = QHBoxLayout()
         self.InfoSave.addStretch(20)
@@ -278,8 +283,16 @@ class Player(QMainWindow):
             else:
                 self.isBiting = False
                 self.stopBiteTime.append(self.mediaplayer.get_time()/1000)
-                
                 self.bitetoggle.setText('Start Bite')
+
+                self.biteadd = QPushButton()
+                self.biteadd.setStyleSheet('background-color:#8F5551')
+                self.biteadd.resize(1,1)
+                self.inicatorBiteBehaviour.addWidget(self.biteadd)
+                self.biteadd.clicked.connect(self.modifydelete)
+
+    def modifydelete(self):
+        print('not writen yet sorry!')
 
     def moveframeforward(self):
         ct = self.mediaplayer.get_time()
