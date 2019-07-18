@@ -40,7 +40,7 @@ Designed for use in the spinal cord group at the University of Glasgow.
 ## TODO
 
 - [ ] add markers for indicating where the behaviour occurs
-- [ ] add support for mouse interaction with these markers
+- [x] add support for mouse interaction with these markers
 - [x] fix saving the excel sheet
   - [x] format
   - [x] summary sheet
@@ -49,6 +49,7 @@ Designed for use in the spinal cord group at the University of Glasgow.
 - [ ] add run time/time elapsed?
 - [ ] make the items customisable e.g. foot lifting
     - [ ] make the items customisable to be for time or just occurances
+    - [ ] make items customisable colours
     
 
 ## Known Issues
