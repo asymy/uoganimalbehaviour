@@ -46,7 +46,12 @@ class Player(QMainWindow):
         self.startLickTime = []
         self.stopLickTime = []
         self.startBiteTime = []
-        self.stopBiteTime = []        
+        self.stopBiteTime = []
+        self.includeBite = [] 
+        self.includeLick = []
+
+        self.nBites = 0
+        self.nLicks = 0 
         
 
     def keyPressEvent(self, e):
@@ -116,7 +121,13 @@ class Player(QMainWindow):
         QShortcut(QKeySequence(Qt.Key_L), self).activated.connect(self.LickStartStop)
         self.licktoggle.clicked.connect(self.LickStartStop)
 
-        self.LickBehaviour.addStretch(1)
+        self.inicatorLickBehaviour = QHBoxLayout()
+
+        self.LickBehaviour.addLayout(self.inicatorLickBehaviour)
+        self.LickBehaviour.addStretch()
+        self.lickButtonGroup = QButtonGroup()
+        self.lickButtonGroup.buttonClicked.connect(self.modifydeleteLick)
+
 
         self.BiteBehaviour = QHBoxLayout()
         self.bitetoggle = QPushButton('Start Bite')
@@ -130,8 +141,8 @@ class Player(QMainWindow):
 
         self.BiteBehaviour.addLayout(self.inicatorBiteBehaviour)
         self.BiteBehaviour.addStretch()
-        self.buttonGroup = QButtonGroup()
-        self.buttonGroup.buttonClicked.connect(self.modifydelete)
+        self.biteButtonGroup = QButtonGroup()
+        self.biteButtonGroup.buttonClicked.connect(self.modifydeleteBite)
 
 
 
@@ -270,7 +281,16 @@ class Player(QMainWindow):
             else:
                 self.isLicking = False
                 self.stopLickTime.append(self.mediaplayer.get_time()/1000)
+                self.includeLick.append(True)
                 self.licktoggle.setText('Start Lick')
+
+                self.lickadd = QPushButton()
+                self.lickadd.setStyleSheet('background-color:#4D8782')
+                self.lickadd.resize(1,1)
+                self.inicatorLickBehaviour.addWidget(self.lickadd)
+
+                self.lickButtonGroup.addButton(self.lickadd,self.nLicks)
+                self.nLicks = self.nLicks + 1
 
     def BiteStartStop(self):
         # Toggle state of licking behaviour
@@ -284,22 +304,42 @@ class Player(QMainWindow):
             else:
                 self.isBiting = False
                 self.stopBiteTime.append(self.mediaplayer.get_time()/1000)
+                self.includeBite.append(True)
                 self.bitetoggle.setText('Start Bite')
+
 
                 self.biteadd = QPushButton()
                 self.biteadd.setStyleSheet('background-color:#8F5551')
                 self.biteadd.resize(1,1)
                 self.inicatorBiteBehaviour.addWidget(self.biteadd)
-                self.biteadd.clicked.connect(self.modifydelete)
 
-                self.buttonGroup.addButton(self.biteadd)
+                self.biteButtonGroup.addButton(self.biteadd,self.nBites)
+                self.nBites = self.nBites + 1
 
 
-
-    def modifydelete(self, button):
-        for item in self.buttonGroup.buttons():
+    def modifydeleteBite(self, button):
+        for item in self.biteButtonGroup.buttons():
             if button is item:
-                button.setStyleSheet('background-color:orange')
+                biteNumber = self.biteButtonGroup.id(button)
+                if self.includeBite[biteNumber]:
+                    self.includeBite[biteNumber] = False
+                    button.setStyleSheet('background-color:red')
+                else:
+                    self.includeBite[biteNumber] = True
+                    button.setStyleSheet('background-color:#8F5551')
+
+    def modifydeleteLick(self, button):
+        for item in self.lickButtonGroup.buttons():
+            if button is item:
+                lickNumber = self.lickButtonGroup.id(button)
+                if self.includeLick[lickNumber]:
+                    self.includeLick[lickNumber] = False
+                    button.setStyleSheet('background-color:red')
+                else:
+                    self.includeLick[lickNumber] = True
+                    button.setStyleSheet('background-color:#4D8782')
+
+                
 
 
     def moveframeforward(self):
@@ -330,53 +370,63 @@ class Player(QMainWindow):
             _ = ws1.cell(column=1,row=3,value='Date')
             _ = ws1.cell(column=2,row=3,value=self.Date.text())
 
-            # Set up and fill in Lick Data
-            _ = ws2.cell(column=1, row=1, value='Occurence')
-            _ = ws2.cell(column=2, row=1, value='Start Time')
-            _ = ws2.cell(column=3, row=1, value='Stop Time')
-            _ = ws2.cell(column=4, row=1, value='Duration')
+            if len(self.startLickTime) > 0:
+                # Set up and fill in Lick Data
+                _ = ws2.cell(column=1, row=1, value='Occurence')
+                _ = ws2.cell(column=2, row=1, value='Start Time')
+                _ = ws2.cell(column=3, row=1, value='Stop Time')
+                _ = ws2.cell(column=4, row=1, value='Duration')
 
-            for row in range(len(self.startLickTime)):
-                _ = ws2.cell(column=1, row=row+2, value=row)
-                _ = ws2.cell(column=2, row=row+2, value=self.startLickTime[row])
-                _ = ws2.cell(column=3, row=row+2, value=self.stopLickTime[row])
-                _ = ws2.cell(column=4, row=row+2, value='=C{0}-B{0}'.format(row+2))
-            _ = ws2.cell(column=4, row=row+3, value='=SUM(D2:D{0})'.format(row+2))
-            
-            # Create summary for Lick Data
-            _ = ws1.cell(column=2,row=5,value='Lick Data')
-            _ = ws1.cell(column=1,row=6,value='Occurances')
-            _ = ws1.cell(column=2,row=6,value='=LickData!A{0}'.format(row+2))
-            _ = ws1.cell(column=1,row=7,value='Total Duration')
-            _ = ws1.cell(column=2,row=7,value='=LickData!D{0}'.format(row+3))
-            _ = ws1.cell(column=1,row=8,value='Average Duration')
-            _ = ws1.cell(column=2,row=8,value='=B7/B6')
-            _ = ws1.cell(column=1,row=9,value='Run Time')
-            _ = ws1.cell(column=2,row=9,value=self.media.get_duration())
-            _ = ws1.cell(column=1,row=10,value='Frequency')
-            _ = ws1.cell(column=2,row=10,value='=B6/B9')
+                xrow = 2
 
-            # Set up and fill in Bite Data
-            _ = ws3.cell(column=1, row=1, value='Occurence')
-            _ = ws3.cell(column=2, row=1, value='Start Time')
-            _ = ws3.cell(column=3, row=1, value='Stop Time')
-            _ = ws3.cell(column=4, row=1, value='Duration')
+                for row in range(len(self.startLickTime)):
+                    if self.includeLick[row]:
+                        _ = ws2.cell(column=1, row=xrow, value=row)
+                        _ = ws2.cell(column=2, row=xrow, value=self.startLickTime[row])
+                        _ = ws2.cell(column=3, row=xrow, value=self.stopLickTime[row])
+                        _ = ws2.cell(column=4, row=xrow, value='=C{0}-B{0}'.format(xrow))
+                        xrow = xrow + 1
+                _ = ws2.cell(column=4, row=xrow, value='=SUM(D2:D{0})'.format(xrow-1))
+                
+                # Create summary for Lick Data
+                _ = ws1.cell(column=2,row=5,value='Lick Data')
+                _ = ws1.cell(column=1,row=6,value='Occurances')
+                _ = ws1.cell(column=2,row=6,value='=LickData!A{0}'.format(xrow-1))
+                _ = ws1.cell(column=1,row=7,value='Total Duration')
+                _ = ws1.cell(column=2,row=7,value='=LickData!D{0}'.format(xrow))
+                _ = ws1.cell(column=1,row=8,value='Average Duration')
+                _ = ws1.cell(column=2,row=8,value='=B7/B6')
+                _ = ws1.cell(column=1,row=9,value='Run Time')
+                _ = ws1.cell(column=2,row=9,value=self.media.get_duration())
+                _ = ws1.cell(column=1,row=10,value='Frequency')
+                _ = ws1.cell(column=2,row=10,value='=B6/B9')
 
-            for row in range(len(self.startBiteTime)):
-                _ = ws3.cell(column=1, row=row+2, value=row)
-                _ = ws3.cell(column=2, row=row+2, value=self.startBiteTime[row])
-                _ = ws3.cell(column=3, row=row+2, value=self.stopBiteTime[row])
-                _ = ws3.cell(column=4, row=row+2, value='=C{0}-B{0}'.format(row+2))
-            _ = ws3.cell(column=4, row=row+3, value='=SUM(D2:D{0})'.format(row+2))
-            
-            # Create summary for Bite Data
-            _ = ws1.cell(column=3,row=5,value='Bite Data')
-            _ = ws1.cell(column=3,row=6,value='=LickData!A{0}'.format(row+2))
-            _ = ws1.cell(column=3,row=7,value='=LickData!D{0}'.format(row+3))
-            _ = ws1.cell(column=3,row=8,value='=B7/B6')
-            _ = ws1.cell(column=3,row=9,value=self.media.get_duration())
-            _ = ws1.cell(column=3,row=10,value='=B6/B9')
-            
+            if len(self.startBiteTime) > 0:
+                # Set up and fill in Bite Data
+                _ = ws3.cell(column=1, row=1, value='Occurence')
+                _ = ws3.cell(column=2, row=1, value='Start Time')
+                _ = ws3.cell(column=3, row=1, value='Stop Time')
+                _ = ws3.cell(column=4, row=1, value='Duration')
+
+                xrow = 2
+
+                for row in range(len(self.startBiteTime)):
+                    if self.includeBite[row]:
+                        _ = ws3.cell(column=1, row=xrow, value=xrow-1)
+                        _ = ws3.cell(column=2, row=xrow, value=self.startBiteTime[row])
+                        _ = ws3.cell(column=3, row=xrow, value=self.stopBiteTime[row])
+                        _ = ws3.cell(column=4, row=xrow, value='=C{0}-B{0}'.format(xrow))
+                        xrow = xrow + 1
+                _ = ws3.cell(column=4, row=xrow, value='=SUM(D2:D{0})'.format(xrow-1))
+                
+                # Create summary for Bite Data
+                _ = ws1.cell(column=3,row=5,value='Bite Data')
+                _ = ws1.cell(column=3,row=6,value='=BiteData!A{0}'.format(xrow-1))
+                _ = ws1.cell(column=3,row=7,value='=BiteData!D{0}'.format(xrow))
+                _ = ws1.cell(column=3,row=8,value='=B7/B6')
+                _ = ws1.cell(column=3,row=9,value=self.media.get_duration())
+                _ = ws1.cell(column=3,row=10,value='=B6/B9')
+                
             ws1.column_dimensions['A'].width = 15
             
             wb.save(savefilename)
